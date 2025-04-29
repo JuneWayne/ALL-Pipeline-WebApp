@@ -14,6 +14,7 @@ db = client['JobDB']
 geo_db = client['GeoDB']
 collection = db['jobs']
 geo_collection = geo_db['geo_locations']
+summary_collection = db['job_summary']
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,3 +45,8 @@ def get_geo_locations():
     raw_docs = list(geo_collection.find({}, {"_id": 0}))
     safe_docs = [sanitize_document(doc) for doc in raw_docs]
     return safe_docs
+
+@app.get('/api/job_summaries')
+def get_job_summaries():
+    summaries = list(summary_collection.find({}, {"_id": 0}))
+    return summaries
