@@ -49,6 +49,9 @@ for job in tqdm(jobs):
                 "summary": result.get("summary"),
                 "skills_desired": result.get("skills_desired"),
                 "degree_qualifications": result.get("degree_qualifications")
+            },
+            "$unset": {
+                "job_description":""
             }}
         )
     except Exception as e:
