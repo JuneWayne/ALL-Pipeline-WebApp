@@ -1,4 +1,4 @@
-# Active Learning Lab DScareers Website Pipeline 
+# Active Learning Lab DSCareers Website Pipeline 
 <table>
 <tr>
 <td>
@@ -9,14 +9,16 @@
 
 
 ## Demo
-Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com
+Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_map
 
 ## Built with 
 
-- Front End: HTML, CSS, JavaScript
+- Front End: HTML, CSS, JavaScript, Streamlit
 - Back End: Flask, Shell, FastAPI, MongoDB, CORSMiddleware
 - Web-scrape & Data Processing: BeautifulSoup4, Requests, Pandas, Numpy
-- API: Job-board specific guest API, openstreetmap.org API
+- API: Job Data guest API, openstreetmap.org API, Render Cloud Services API (for shipping)
+- Chatbot (Summarizer): OpenAI o4-mini
+- Chatbot (Copilot Agent): OpenAI GPT-4o
 
 ## Update Log:
 **03/05**
@@ -36,14 +38,19 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com
 **04/16**
 - Automate the web-scrape task and connect it with MongoDB via Shell 
 - initialize the pipeline and create a fastapi end point up running in the cloud (so that the website can always access it)
-- consider whether a paid tier is required fro Render's cloud api services
-  
-**04/22**
-- Connect to Front-end (HTML & JavaScript architecture) via Render's cloud hosted FastAPI
+- consider whether a paid tier is required for Render's cloud api services
+
+**05/16**
+- Established scheduled tasks via Pythonanywhere to collect internship updates on a daily basis at 6AM eastern
+- Created a Job Description Summarizer Agent that parses key information such as degree requirement, skills desired, and job duties
+- Created an Internship Copilot Agent via Streamlit that finds relevant internship recommendations based on user query from Pinecone's Vector Store
+- Embedded Streamlit application to Front-end website
+- Connected Front-end displays with Render API
+
+**06/30**
+- Fixed the pipeline breakage from OpenAI Errors and migrated deprecated Pinecone packages to newer updates
+- Connected the Pinecone Vector Store with the scheduled data pipeline, automated the embedding process to ensure that the chatbot is update-to-date with the newest internship information
+
+**Future Steps**
 - Create an analytical dashboard of visualizations via D3 or Python
-- Connect an AI summarizer agent to the workflow to summarize lengthy job descriptions to 2-3 sentences
-- Write a script that either uses mechanical key word extraction methods, or uses natural langugae processing to extract keywords such as skillset requirements from the job database
-- Testing of scheduled task and whether website updates in real time
-  
-**04/30**
 - Have a fully functioning real-time updated dashboard and geo-mapped job visualization website
