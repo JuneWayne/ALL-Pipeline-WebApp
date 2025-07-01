@@ -15,7 +15,7 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 - `Front End`: HTML, CSS, JavaScript, Streamlit
 - `Back End`: Flask, Shell, FastAPI, MongoDB, CORSMiddleware
 - `Web-scrape & Data Processing`: BeautifulSoup4, Requests, Pandas, Numpy
-- `AP`I: Job Data guest API, openstreetmap.org API, Render Cloud Services API (for shipping)
+- `API`: Job Data guest API, openstreetmap.org API, Render Cloud Services API (for shipping)
 - `Chatbot (Summarizer)`: OpenAI o4-mini, Langchain, Pinecone, StreamLit
 - `Chatbot (Copilot Agent)`: OpenAI GPT-4o, Langchain, Pinecone, Streamlit, ElevenLabs
 
