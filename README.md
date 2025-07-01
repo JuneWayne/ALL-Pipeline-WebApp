@@ -51,7 +51,7 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 - Connected the Pinecone Vector Store with the scheduled data pipeline, automated the embedding process to ensure that the chatbot is update-to-date with the newest internship information
 
 **Bug Fixes Required**
-- Fix bugs of locations showing 'zero' jobs
+- Fix bugs of location markers showing 'zero' jobs
 - Fix bugs of location markers overlapping each other on the same long/latitude position
 - Fix Chatbot's connection to Pinecone (JSON format versus Document format retrievals)
 - Fix Conversational AI's 'Permission Denied' issue
