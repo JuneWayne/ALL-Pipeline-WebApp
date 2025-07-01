@@ -18,7 +18,7 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 - Web-scrape & Data Processing: BeautifulSoup4, Requests, Pandas, Numpy
 - API: Job Data guest API, openstreetmap.org API, Render Cloud Services API (for shipping)
 - Chatbot (Summarizer): OpenAI o4-mini, Langchain, Pinecone, StreamLit
-- Chatbot (Copilot Agent): OpenAI GPT-4o, Langchain, Pinecone, Streamlit
+- Chatbot (Copilot Agent): OpenAI GPT-4o, Langchain, Pinecone, Streamlit, ElevenLabs
 
 ## Update Log:
 **03/05**
@@ -52,5 +52,8 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 - Connected the Pinecone Vector Store with the scheduled data pipeline, automated the embedding process to ensure that the chatbot is update-to-date with the newest internship information
 
 **Future Steps**
-- Create an analytical dashboard of visualizations via D3 or Python
-- Have a fully functioning real-time updated dashboard and geo-mapped job visualization website
+- Create an analytical dashboard of visualizations via D3 or Python that is connected to the cloud api
+- Improve UI for better user experience overall (smoother transitions etc)
+- Fix bugs of locations showing 'zero' jobs
+- Fix Chatbot's connection to Pinecone (JSON format versus Document format retrievals)
+- Fix Conversational AI's 'Permission Denied' issue
