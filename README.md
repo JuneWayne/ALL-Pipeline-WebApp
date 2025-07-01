@@ -51,13 +51,13 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 - Fixed the pipeline breakage from OpenAI Errors and migrated deprecated Pinecone packages to newer updates
 - Connected the Pinecone Vector Store with the scheduled data pipeline, automated the embedding process to ensure that the chatbot is update-to-date with the newest internship information
 
-<span style="color:red"> **Bug Fixes Required** </span>
+**Bug Fixes Required**
 - Fix bugs of location markers showing 'zero' jobs
 - Fix bugs of location markers overlapping each other on the same long/latitude position
 - Fix Chatbot's connection to Pinecone (JSON format versus Document format retrievals)
 - Fix Conversational AI's 'Permission Denied' issue
-
-<span style="color:blue">**Future Steps**</span>
+$${\color{red}Color \\space your \\space \\color{green}.md \\space file \\space \\color{blue}in \\space Github}$$
+**Future Steps**
 - Create an analytical dashboard of visualizations via D3 or Python that is connected to the cloud api
 - Improve UI for better user experience overall (smoother transitions, aggregating markers when zoomed out, etc)
 - Scrape Alumni profile information (MSDS Alumni, UVA Alums in general) and link it to the relevant job postings
