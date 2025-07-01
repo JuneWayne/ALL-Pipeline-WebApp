@@ -8,11 +8,11 @@
 </table>
 
 
-## Demo
+## Demo:
 Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_map
 <img src="./misc/Screenshot 2025-07-01 142016.png" alt="demo image">
 
-## Built with 
+## Built with: 
 - `Front End`: HTML, CSS, JavaScript, Streamlit
 - `Back End`: Flask, Shell, FastAPI, MongoDB, CORSMiddleware
 - `Web-scrape & Data Processing`: BeautifulSoup4, Requests, Pandas, Numpy
