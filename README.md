@@ -12,13 +12,12 @@
 Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_map
 
 ## Built with 
-
-- Front End: HTML, CSS, JavaScript, Streamlit
-- Back End: Flask, Shell, FastAPI, MongoDB, CORSMiddleware
-- Web-scrape & Data Processing: BeautifulSoup4, Requests, Pandas, Numpy
-- API: Job Data guest API, openstreetmap.org API, Render Cloud Services API (for shipping)
-- Chatbot (Summarizer): OpenAI o4-mini, Langchain, Pinecone, StreamLit
-- Chatbot (Copilot Agent): OpenAI GPT-4o, Langchain, Pinecone, Streamlit, ElevenLabs
+- `Front End`: HTML, CSS, JavaScript, Streamlit
+- `Back End`: Flask, Shell, FastAPI, MongoDB, CORSMiddleware
+- `Web-scrape & Data Processing`: BeautifulSoup4, Requests, Pandas, Numpy
+- `AP`I: Job Data guest API, openstreetmap.org API, Render Cloud Services API (for shipping)
+- `Chatbot (Summarizer)`: OpenAI o4-mini, Langchain, Pinecone, StreamLit
+- `Chatbot (Copilot Agent)`: OpenAI GPT-4o, Langchain, Pinecone, Streamlit, ElevenLabs
 
 ## Update Log:
 **03/05**
@@ -51,9 +50,13 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 - Fixed the pipeline breakage from OpenAI Errors and migrated deprecated Pinecone packages to newer updates
 - Connected the Pinecone Vector Store with the scheduled data pipeline, automated the embedding process to ensure that the chatbot is update-to-date with the newest internship information
 
-**Future Steps**
-- Create an analytical dashboard of visualizations via D3 or Python that is connected to the cloud api
-- Improve UI for better user experience overall (smoother transitions etc)
+**Bug Fixes Required**
 - Fix bugs of locations showing 'zero' jobs
+- Fix bugs of location markers overlapping each other on the same long/latitude position
 - Fix Chatbot's connection to Pinecone (JSON format versus Document format retrievals)
 - Fix Conversational AI's 'Permission Denied' issue
+
+**Future Steps**
+- Create an analytical dashboard of visualizations via D3 or Python that is connected to the cloud api
+- Improve UI for better user experience overall (smoother transitions, aggregating markers when zoomed out, etc)
+
