@@ -59,4 +59,7 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 **Future Steps**
 - Create an analytical dashboard of visualizations via D3 or Python that is connected to the cloud api
 - Improve UI for better user experience overall (smoother transitions, aggregating markers when zoomed out, etc)
+- Scrape Alumni profile information (MSDS Alumni, UVA Alums in general) and link it to the relevant job postings
+- Scrape HR contact + application link information for each job postings 
+
 
