@@ -55,7 +55,7 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 ## To Dos 🚨
 - Fix bugs of location markers showing 'zero' jobs
 - Fix bugs of location markers overlapping each other on the same long/latitude position
-- Fix Chatbot's connection to Pinecone (JSON format versus Document format retrievals)
+- Fix Chatbot's connection to Pinecone (JSON format versus Document format retrievals) ✅
 - Fix Conversational AI's 'Permission Denied' issue
 
 ## Future Steps 🔮
