@@ -3,6 +3,13 @@ set -a
 source .env
 set +a
 
+set -euo pipefail
+
+export $(grep -v '^#' /home/EthanCao/.env | xargs)
+
+source /home/EthanCao/.virtualenvs/chatbot/bin/activate
+
+
 echo "Running cleanup script..."
 python3 clear_jobs.py
 
@@ -20,3 +27,6 @@ python3 Job_info.py
 
 echo "Running job summarizer script..."
 python3 Job_Summarizer_Agent.py
+
+echo "Running chatbot ingestion script.."
+python3 Chatbot_Ingestion.py

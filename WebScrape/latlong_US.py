@@ -4,7 +4,6 @@ import time
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
-from urllib.parse import quote_plus
 
 load_dotenv()
 mongo_pwd = os.getenv("MONGO_PWD")

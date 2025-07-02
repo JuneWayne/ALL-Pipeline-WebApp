@@ -1,0 +1,10 @@
+python-dotenv
+pinecone[async]>=6.0.0,<7.0.0
+google-generativeai
+openai
+langchain
+langchain-community
+tiktoken
+crewai
+crewai-tools
+langchain-pinecone

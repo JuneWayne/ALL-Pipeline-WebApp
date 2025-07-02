@@ -2,9 +2,8 @@ import pandas as pd
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
-from urllib.parse import quote_plus
 from collections import defaultdict
-import statistics 
+import statistics
 import re
 
 load_dotenv()
@@ -22,7 +21,7 @@ jobs = list(jobs_collection.find())
 
 location_to_applicants = defaultdict(list)
 for job in jobs:
-    location = job.get('location')
+    location = job.get('location', "").strip().lower()
     applicants_str = job.get('num_applicants')
     num_applicants = None
 
@@ -44,7 +43,7 @@ for location, applicants_list in location_to_applicants.items():
 
     }
     summary_docs.append(summary)
-summaries_collection.delete_many({})  
+summaries_collection.delete_many({})
 if summary_docs:
     summaries_collection.insert_many(summary_docs)
 

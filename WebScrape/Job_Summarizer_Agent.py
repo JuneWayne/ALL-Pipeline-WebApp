@@ -1,58 +1,65 @@
 from pymongo import MongoClient
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
+import os, json
 from tqdm import tqdm
+
+
 
 load_dotenv()
 mongo_pwd = os.getenv("MONGO_PWD")
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
-client = MongoClient(f"mongodb+srv://JuneWay:{mongo_pwd}@ethanc.qgevd.mongodb.net/")
-db = client["JobDB"]
+mongo_client = MongoClient(f"mongodb+srv://JuneWay:{mongo_pwd}@ethanc.qgevd.mongodb.net/")
+openai_client = OpenAI(api_key=openai_api_key)
+
+db = mongo_client["JobDB"]
 jobs_collection = db["jobs"]
 
-from openai import OpenAI
+# Testing if the openai api is working
 
-client = OpenAI(api_key=openai_api_key)
+test = openai_client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[{"role":"user","content":"Hello?"}]
+)
+print("OpenAI test reply:", test.choices[0].message.content)
 
 def summarize_description(description):
     prompt = f"""
-You're a summarizer agent that helps job seekers. 
+You’re a summarizer agent that helps job seekers.
 Given a job description, do the following:
 1. Write a 1–2 sentence summary.
-2. List key skills required in a comma separated line.
-3. List degree/education requirements in a comma separated line.
+2. List key technical skills in a comma separated words.
+3. List degree/education requirements in a few words.
+
+Respond in JSON with keys: summary, skills_desired, degree_qualifications.
 
 Job Description:
 \"\"\"{description}\"\"\"
-
-Respond in JSON with keys: summary, skills_desired, degree_qualifications.
 """
-    response = client.chat.completions.create(model="gpt-4",
-    messages=[{"role": "user", "content": prompt}],
-    temperature=0.2)
+    resp = openai_client.chat.completions.create(
+        model="o4-mini-2025-04-16",
+        messages=[{"role": "user", "content": prompt}],
+    )
 
-    return eval(response.choices[0].message.content)
+    content = resp.choices[0].message.content.strip()
+    return json.loads(content)
 
-jobs = list(jobs_collection.find())
+jobs = list(jobs_collection.find({"job_description": {"$exists": True}}))
 for job in tqdm(jobs):
-    desc = job.get("job_description")
-    if not desc:
-        continue
-
+    desc = job["job_description"]
     try:
         result = summarize_description(desc)
         jobs_collection.update_one(
             {"_id": job["_id"]},
-            {"$set": {
-                "summary": result.get("summary"),
-                "skills_desired": result.get("skills_desired"),
-                "degree_qualifications": result.get("degree_qualifications")
-            },
-            "$unset": {
-                "job_description":""
-            }}
+            {
+                "$set": {
+                    "summary":               result["summary"],
+                    "skills_desired":        result["skills_desired"],
+                    "degree_qualifications": result["degree_qualifications"],
+                },
+                "$unset": {"job_description": ""},
+            }
         )
     except Exception as e:
-        print(f"Failed on job {job.get('job_title')}: {e}")
+        print(f"⚠️ Failed on {job.get('job_title','<no title>')}: {e}")

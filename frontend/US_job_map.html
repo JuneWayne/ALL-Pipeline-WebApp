@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>UVA Job Map – Applicants Colored</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       height: 100%;
@@ -52,13 +54,33 @@
       cursor: pointer;
     }
 
-    .marker-low-a { background: #4A90E2; }
-    .marker-low-b { background: #2C82C9; }
-    .marker-medium-a { background: #F39C12; }
-    .marker-medium-b { background: #D68910; }
-    .marker-high-a { background: #27AE60; }
-    .marker-high-b { background: #1E8449; }
-    .marker-unknown { background: #7f8c8d; }
+    .marker-low-a {
+      background: #4A90E2;
+    }
+
+    .marker-low-b {
+      background: #2C82C9;
+    }
+
+    .marker-medium-a {
+      background: #F39C12;
+    }
+
+    .marker-medium-b {
+      background: #D68910;
+    }
+
+    .marker-high-a {
+      background: #27AE60;
+    }
+
+    .marker-high-b {
+      background: #1E8449;
+    }
+
+    .marker-unknown {
+      background: #7f8c8d;
+    }
 
     #map-legend {
       position: absolute;
@@ -67,8 +89,9 @@
       background: rgba(255, 255, 255, 0.95);
       padding: 10px 15px;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      z-index: 1001; /* This ensures it appears above the map */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 1001;
+      /* This ensures it appears above the map */
       font-family: sans-serif;
       font-size: 14px;
       color: #333;
@@ -88,13 +111,33 @@
       margin-right: 8px;
     }
 
-    .legend-circle.low     { background: #4A90E2; }
-    .legend-circle.medium  { background: #F39C12; }
-    .legend-circle.high    { background: #27AE60; }
-    .legend-circle.unknown { background: #7f8c8d; }
+    .legend-circle.low {
+      background: #4A90E2;
+    }
 
+    .legend-circle.medium {
+      background: #F39C12;
+    }
+
+    .legend-circle.high {
+      background: #27AE60;
+    }
+
+    .legend-circle.unknown {
+      background: #7f8c8d;
+    }
+
+    .leaflet-marker-icon {
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+    }
+
+    .leaflet-marker-icon.visible {
+      opacity: 1;
+    }
   </style>
 </head>
+
 <body>
 
   <div id="map-legend">
@@ -108,9 +151,7 @@
 
   <div class="container">
     <div id="map"></div>
-    <iframe
-      id="chat-iframe"
-      src="https://junewayne-cavhire-chatbotcopilot-us-pucmcr.streamlit.app/?embed=true">
+    <iframe id="chat-iframe" src="https://junewayne-cavhire-chatbotcopilot-us-pucmcr.streamlit.app/?embed=true">
     </iframe>
   </div>
 
@@ -126,31 +167,41 @@
     let locationMeta = {};
     let markers = [];
 
-    fetch('/static/Cleaned_Parsed_Data_Science_Internships.json')
+
+    function normalizeLocation(loc) {
+      return loc.trim().toLowerCase();
+    }
+
+    fetch('https://jobdata-cih4.onrender.com/api/jobs')
       .then(res => res.json())
       .then(data => {
         jobData = data.reduce((acc, job) => {
-          const loc = job.location || 'Unknown';
+          const loc = normalizeLocation(job.location || 'Unknown');
           if (!acc[loc]) acc[loc] = [];
           acc[loc].push(job);
           return acc;
         }, {});
-        return fetch('/static/location_job_applicants_summary_US.json');
+        return fetch('https://jobdata-cih4.onrender.com/api/job_summaries');
       })
       .then(res => res.json())
       .then(summary => {
         summary.forEach(entry => {
-          locationMeta[entry.location] = {
+          const normLoc = normalizeLocation(entry.location);
+          locationMeta[normLoc] = {
             jobCount: entry.number_of_jobs,
             avgApplicants: entry.average_applicants
           };
         });
-        return fetch('/static/locations_US.json');
+        return fetch('https://jobdata-cih4.onrender.com/api/geo_locations');
       })
       .then(res => res.json())
       .then(locations => {
         let index = 0;
-        Object.entries(locations).forEach(([name, coords]) => {
+        locations.forEach(location => {
+          const rawName = location.location;
+          const name = normalizeLocation(rawName);
+          const coords = { lat: location.latitude, lng: location.longitude };
+
           const meta = locationMeta[name] || {};
           const jobCount = meta.jobCount || 0;
           const avgApplicants = meta.avgApplicants || 0;
@@ -167,40 +218,44 @@
 
           const icon = L.divIcon({
             className: '',
-            html: `<div class="custom-marker ${className}" title="${name}: ${jobCount} job${jobCount !== 1 ? 's' : ''}">${jobCount}</div>`,
+            html: `<div class="custom-marker ${className}" title="${rawName}: ${jobCount} job${jobCount !== 1 ? 's' : ''}">${jobCount}</div>`,
             iconSize: [34, 34],
             iconAnchor: [17, 34]
           });
 
           const marker = L.marker([coords.lat, coords.lng], { icon });
           const jobs = jobData[name] || [];
+          if (jobs.length > 0 && jobCount === 0) {
+            console.warn(`Location mismatch: jobs exist but summary missing for "${rawName}"`);
+          }
+
 
           let popupHTML = `
-            <div class="popup-content">
-              <b>${name}</b><br>
-              ${jobCount} job${jobCount !== 1 ? 's' : ''}<br>
-              Avg applicants: ${Math.round(avgApplicants)}<br><hr>
-              <div style="max-height: 300px; overflow-y: auto; padding-right: 6px;">
-          `;
+              <div class="popup-content">
+                <b>${rawName}</b><br>
+                ${jobCount} job${jobCount !== 1 ? 's' : ''}<br>
+                Avg applicants: ${Math.round(avgApplicants)}<br><hr>
+                <div style="max-height: 300px; overflow-y: auto; padding-right: 6px;">
+            `;
 
           jobs.forEach(job => {
             popupHTML += `
-              <div style="text-align:left; margin-bottom: 10px;">
-                <strong style="font-size:25px;">${job.job_title || 'Untitled Job'}</strong><br>
-                <div style="font-size:18px;">
-                  <strong>Company:</strong> ${job.company_name || 'N/A'}<br>
-                  <strong>Time Posted:</strong> ${job.time_posted || 'N/A'}<br>
-                  <strong>Applicants:</strong> ${job.num_applicants || 'N/A'}<br>
-                  <strong>Employment Type:</strong> ${job['Employment Type'] || 'N/A'}<br>
-                  <strong>Seniority Level:</strong> ${job['Seniority Level'] || 'N/A'}<br>
-                  <strong>Job Function:</strong> ${job['Job Function'] || 'N/A'}<br>
-                  <strong>Industries:</strong> ${job['Industries'] || 'N/A'}<br>
-                  <strong>Skills Desired:</strong> ${job['skills_desired'] || 'N/A'}<br>
-                  <strong>Degree Qualifications:</strong> ${job['degree_qualifications'] || 'N/A'}<br>
-                </div>
-                <p style="font-size:20px;"><strong>Responsibilities:</strong><br>${job.job_responsibilities || 'N/A'}</p>
-              </div><hr>
-            `;
+                <div style="text-align:left; margin-bottom: 10px;">
+                  <strong style="font-size:25px;">${job.job_title || 'Untitled Job'}</strong><br>
+                  <div style="font-size:18px;">
+                    <strong>Company:</strong> ${job.company_name || 'N/A'}<br>
+                    <strong>Time Posted:</strong> ${job.time_posted || 'N/A'}<br>
+                    <strong>Applicants:</strong> ${job.num_applicants || 'N/A'}<br>
+                    <strong>Employment Type:</strong> ${job['Employment Type'] || 'N/A'}<br>
+                    <strong>Seniority Level:</strong> ${job['Seniority Level'] || 'N/A'}<br>
+                    <strong>Job Function:</strong> ${job['Job Function'] || 'N/A'}<br>
+                    <strong>Industries:</strong> ${job['Industries'] || 'N/A'}<br>
+                    <strong>Skills Desired:</strong> ${job['skills_desired'] || 'N/A'}<br>
+                    <strong>Degree Qualifications:</strong> ${job['degree_qualifications'] || 'N/A'}<br>
+                    <strong>Job Summary:</strong> ${job['summary'] || 'N/A'}<br>
+                  </div>
+                </div><hr>
+              `;
           });
 
           popupHTML += '</div></div>';
@@ -208,9 +263,17 @@
           marker.bindPopup(popupHTML);
           marker.addTo(map);
           markers.push(marker);
+          setTimeout(() => {
+            const markerElem = marker.getElement();
+            if (markerElem) {
+              markerElem.classList.add('visible');
+            }
+          }, 50);
         });
       })
+
       .catch(error => console.error('Error loading map data:', error));
   </script>
 </body>
+
 </html>
