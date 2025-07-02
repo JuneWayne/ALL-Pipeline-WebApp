@@ -10,7 +10,7 @@
 
 ## Demo:
 Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_map
-<img src="./misc/Screenshot 2025-07-01 142016.png" alt="demo image">
+<img src="./misc/Demo-2.png" alt="demo image">
 
 ## Built with: 
 - `Front End`: HTML, CSS, JavaScript, Streamlit
