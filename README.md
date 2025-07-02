@@ -56,14 +56,14 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 
 ## To Dos 🚨
 - Fix bugs of location markers showing 'zero' jobs
-- Fix bugs of location markers overlapping each other on the same long/latitude position
+- Fix bugs of location markers overlapping each other on the same long/latitude position ✅
 - Fix Chatbot's connection to Pinecone (JSON format versus Document format retrievals) ✅
-- Fix Conversational AI's 'Permission Denied' issue
+- Fix Conversational AI's 'Permission Denied' issue ✅
 
 ## Future Steps 🔮
 - Create an analytical dashboard of visualizations via D3 or Python that is connected to the cloud api
-- Make the chatbot interface collapsable 
-- Improve UI for better user experience overall (smoother transitions, aggregating markers when zoomed out, etc)
+- Make the chatbot interface collapsable ✅
+- Improve UI for better user experience overall (smoother transitions, aggregating markers when zoomed out, etc) ✅
 - Scrape Alumni profile information (MSDS Alumni, UVA Alums in general) and link it to the relevant job postings
 - Scrape HR contact + application link information for each job postings 
 
