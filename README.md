@@ -73,6 +73,11 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 - Make the chatbot interface collapsable ✅
 - Improve UI for better user experience overall (smoother transitions, aggregating markers when zoomed out, etc) ✅
 - Scrape Alumni profile information (MSDS Alumni, UVA Alums in general) and link it to the relevant job postings
-- Scrape HR contact + application link information for each job postings 
+- Scrape HR contact + application link information for each job postings
+
+### How to test pipeline:
+1. source ~/.virtualenvs/chatbot/bin/activate
+2. chmod 755 run_pipeline.sh
+3. ./run_pipeline.sh
 
 
