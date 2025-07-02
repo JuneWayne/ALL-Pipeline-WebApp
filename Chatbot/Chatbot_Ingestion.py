@@ -68,7 +68,7 @@ def fetch_jobs_from_api(url: str) -> list[dict]:
     if isinstance(data, dict) and "jobs" in data:
         return data["jobs"]
 
-    print("⚠️  Unexpected JSON shape; returning empty list")
+    print("Unexpected JSON shape; returning empty list")
     return []
 
 
