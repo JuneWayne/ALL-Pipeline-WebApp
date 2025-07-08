@@ -1,108 +1,117 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <title>UVA Job Map – Applicants Colored</title>
   <meta charset="utf-8" />
+  <title>UVA Job Map – Clustering & Spinning Collapsible Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
   <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    html, body {
+      margin: 0; padding: 0;
       font-family: 'Segoe UI', sans-serif;
     }
-
-    .container {
+    
+    #spinner {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px; height: 40px;
+        margin: -20px 0 0 -20px;
+        border: 4px solid rgba(0,0,0,0.1);
+        border-top-color: #4A90E2 ;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        z-index:3000;
+        display: none;
+    }
+    @keyframes spin{
+        to {transform: rotate(360deg);}
+    }
+    
+    /* Map + Chat flex container */
+    .map-chat-container {
       display: flex;
-      height: 100%;
+      height: 100vh;
+      position: relative;
+    }
+    #map {
+      flex: 1;
     }
 
-    #chat-iframe {
+    /* Chat pane collapsed by default */
+    #chat-container {
+      width: 0;
+      height: 100%;
+      overflow: hidden;
+      transition: width 0.3s ease;
+    }
+    /* Expanded state */
+    #chat-container.open {
       width: 500px;
+    }
+    #chat-iframe {
+      width: 100%;
       height: 100%;
       border: none;
       border-radius: 28px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      margin: 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
 
-
-    #map {
-      flex: 1;
-      height: 100%;
-    }
-
-    .custom-marker {
-      width: 34px;
-      height: 34px;
+    /* Floating circular button */
+    .chat-button {
+      position: absolute;
+      bottom: 120px;
+      right: 20px;
+      z-index: 2000;
+      width: 56px; height: 56px;
+      border: none;
       border-radius: 50%;
-      text-align: center;
-      font-size: 14px;
-      font-weight: bold;
+      background: #000000;
       color: white;
-      line-height: 34px;
-      user-select: none;
-      transition: transform 0.2s ease;
-    }
-
-    .custom-marker:hover {
-      transform: translateY(-10px) scale(1.15);
+      font-size: 24px;
+      line-height: 56px;
+      text-align: center;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: background 0.2s;
+    }
+    .chat-button:hover {
+      background: #3a78c2;
     }
 
-    .marker-low-a {
-      background: #4A90E2;
+    /* Spin animation */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    .chat-button.spin {
+      animation: spin 0.5s linear;
     }
 
-    .marker-low-b {
-      background: #2C82C9;
-    }
-
-    .marker-medium-a {
-      background: #F39C12;
-    }
-
-    .marker-medium-b {
-      background: #D68910;
-    }
-
-    .marker-high-a {
-      background: #27AE60;
-    }
-
-    .marker-high-b {
-      background: #1E8449;
-    }
-
-    .marker-unknown {
-      background: #7f8c8d;
-    }
-
+    /* Legend styling */
     #map-legend {
       position: absolute;
       bottom: 150px;
       left: 20px;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255,255,255,0.95);
       padding: 10px 15px;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       z-index: 1001;
-      /* This ensures it appears above the map */
-      font-family: sans-serif;
       font-size: 14px;
       color: #333;
     }
-
     .legend-item {
       display: flex;
       align-items: center;
       margin-bottom: 6px;
     }
-
     .legend-circle {
       display: inline-block;
       width: 16px;
@@ -110,170 +119,254 @@
       border-radius: 50%;
       margin-right: 8px;
     }
+    .legend-circle.low     { background: #4A90E2; }
+    .legend-circle.medium  { background: #F39C12; }
+    .legend-circle.high    { background: #27AE60; }
+    .legend-circle.unknown { background: #7f8c8d; }
 
-    .legend-circle.low {
-      background: #4A90E2;
+    /* Custom marker styles */
+    .custom-marker {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      line-height: 34px;
+      transition: transform 0.2s ease;
+      user-select: none;
     }
-
-    .legend-circle.medium {
-      background: #F39C12;
+    .custom-marker:hover {
+      transform: translateY(-10px) scale(1.15);
+      cursor: pointer;
     }
+    .marker-low-a    { background: #4A90E2; }
+    .marker-low-b    { background: #2C82C9; }
+    .marker-medium-a { background: #F39C12; }
+    .marker-medium-b { background: #D68910; }
+    .marker-high-a   { background: #27AE60; }
+    .marker-high-b   { background: #1E8449; }
+    .marker-unknown  { background: #7f8c8d; }
 
-    .legend-circle.high {
-      background: #27AE60;
-    }
-
-    .legend-circle.unknown {
-      background: #7f8c8d;
-    }
-
+    /* Remove default white box */
+    .leaflet-div-icon,
     .leaflet-marker-icon {
-      opacity: 0;
-      transition: opacity 0.5s ease-in;
+      background: none !important;
+      border:     none !important;
     }
 
-    .leaflet-marker-icon.visible {
-      opacity: 1;
+    /* Cluster icon styling */
+    .cluster-marker-icon {
+      background: none;
+      border: none;
+    }
+    .cluster-marker-icon .cluster-marker {
+      width: 40px; height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+      color: white;
+      background: #27AE60;
     }
   </style>
 </head>
-
 <body>
-
+  <!-- spinner -->
+  <div id='spinner'></div>
+  
+  <!-- Legend -->
   <div id="map-legend">
     <h4>Average Applicants</h4>
     <div class="legend-item"><span class="legend-circle low"></span> Low (1–60)</div>
-    <div class="legend-item"><span class="legend-circle medium"></span> Medium (61-100)</div>
+    <div class="legend-item"><span class="legend-circle medium"></span> Medium (61–100)</div>
     <div class="legend-item"><span class="legend-circle high"></span> High (101+)</div>
     <div class="legend-item"><span class="legend-circle unknown"></span> Unknown</div>
   </div>
 
-
-  <div class="container">
+  <!-- Map + Chat Pane -->
+  <div class="map-chat-container">
     <div id="map"></div>
-    <iframe id="chat-iframe" src="https://junewayne-cavhire-chatbotcopilot-us-pucmcr.streamlit.app/?embed=true">
-    </iframe>
+    <div id="chat-container">
+      <iframe
+        id="chat-iframe"
+        src="https://junewayne-cavhire-chatbotcopilot-us-pucmcr.streamlit.app/?embed=true"
+      ></iframe>
+    </div>
   </div>
 
+  <!-- Floating Chat Toggle Button -->
+  <button 
+    id="toggle-chat" 
+    class="chat-button"
+    title="Click to open chat"
+   >💬</button>
 
+  <!-- ElevenLabs Widget -->
+  <div class="container">
+    <elevenlabs-convai agent-id="agent_01jvp98w46fj691vcvedbhkyd9"></elevenlabs-convai>
+  </div>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async></script>
+
+  <!-- Leaflet & MarkerCluster JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+  <!-- Chat Toggle & Spin Logic -->
   <script>
+    const btn = document.getElementById('toggle-chat');
+    const chatWrap = document.getElementById('chat-container');
+    let isOpen = false;
+    btn.addEventListener('click', () => {
+      btn.classList.add('spin');
+      setTimeout(() => btn.classList.remove('spin'), 500);
+      isOpen = !isOpen;
+      chatWrap.classList.toggle('open', isOpen);
+      btn.textContent = isOpen ? '✕' : '💬';
+    });
+  </script>
+
+  <!-- Map Clustering, Popups, Spinner control -->
+  <script>
+  (async function() {
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'block';
+    
+    
+    function showError(msg) {
+      const b = document.createElement('div');
+      b.style = `
+        position:absolute; top:0; left:0; right:0;
+        background:rgba(200,0,0,0.9); color:white;
+        padding:8px; font-family:sans-serif; z-index:2000;
+      `;
+      b.textContent = 'Error loading data: ' + msg;
+      document.body.appendChild(b);
+    }
+
+    let jobs, summary, locations;
+    try {
+      const r1 = await fetch('https://jobdata-cih4.onrender.com/api/jobs', { mode:'cors' });
+      if (!r1.ok) throw new Error(`jobs returned ${r1.status}`);
+      jobs = await r1.json();
+
+      const r2 = await fetch('https://jobdata-cih4.onrender.com/api/job_summaries', { mode:'cors' });
+      if (!r2.ok) throw new Error(`summaries returned ${r2.status}`);
+      summary = await r2.json();
+
+      const r3 = await fetch('https://jobdata-cih4.onrender.com/api/geo_locations', { mode:'cors' });
+      if (!r3.ok) throw new Error(`geo_locations returned ${r3.status}`);
+      locations = await r3.json();
+    } catch (e) {
+      console.error(e);
+      showError(e.message);
+      return;
+    }
+
+    // Build lookup tables
+    const jobData = {};
+    jobs.forEach(job => {
+      const k = (job.location||'Unknown').trim().toLowerCase();
+      (jobData[k] = jobData[k]||[]).push(job);
+    });
+    const locationMeta = {};
+    summary.forEach(s => {
+      const k = (s.location||'Unknown').trim().toLowerCase();
+      locationMeta[k] = {
+        jobCount:       s.number_of_jobs,
+        avgApplicants:  s.average_applicants
+      };
+    });
+
+    // Initialize map & clustering
     const map = L.map('map').setView([38.0356, -78.5034], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    let jobData = {};
-    let locationMeta = {};
-    let markers = [];
-
-
-    function normalizeLocation(loc) {
-      return loc.trim().toLowerCase();
-    }
-
-    fetch('https://jobdata-cih4.onrender.com/api/jobs')
-      .then(res => res.json())
-      .then(data => {
-        jobData = data.reduce((acc, job) => {
-          const loc = normalizeLocation(job.location || 'Unknown');
-          if (!acc[loc]) acc[loc] = [];
-          acc[loc].push(job);
-          return acc;
-        }, {});
-        return fetch('https://jobdata-cih4.onrender.com/api/job_summaries');
-      })
-      .then(res => res.json())
-      .then(summary => {
-        summary.forEach(entry => {
-          const normLoc = normalizeLocation(entry.location);
-          locationMeta[normLoc] = {
-            jobCount: entry.number_of_jobs,
-            avgApplicants: entry.average_applicants
-          };
+    const clusters = L.markerClusterGroup({
+      spiderfyOnMaxZoom:   true,
+      showCoverageOnHover: false,
+      maxClusterRadius:    zoom => zoom<5?200: zoom<8?100: zoom<12?50:20,
+      iconCreateFunction: cluster => {
+        let sum = 0;
+        cluster.getAllChildMarkers().forEach(m => sum += (m.options.jobCount||0));
+        return L.divIcon({
+          className: 'cluster-marker-icon',
+          html: `<div class="cluster-marker">${sum}</div>`,
+          iconSize: [40,40],
+          iconAnchor: [20,20]
         });
-        return fetch('https://jobdata-cih4.onrender.com/api/geo_locations');
-      })
-      .then(res => res.json())
-      .then(locations => {
-        let index = 0;
-        locations.forEach(location => {
-          const rawName = location.location;
-          const name = normalizeLocation(rawName);
-          const coords = { lat: location.latitude, lng: location.longitude };
+      }
+    });
 
-          const meta = locationMeta[name] || {};
-          const jobCount = meta.jobCount || 0;
-          const avgApplicants = meta.avgApplicants || 0;
+    // Add markers & popups
+    const seen = new Set()
+    locations.forEach((loc, i) => {
+      const raw = loc.location || 'Unknown';
+      const key = raw.trim().toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      const { latitude: lat, longitude: lng } = loc;
+      const meta = locationMeta[key] || { jobCount:0, avgApplicants:0 };
+      const jobsHere = jobData[key] || [];
+      const count = jobsHere.length;
+      const avg   = meta.avgApplicants || 0;
 
-          let baseLevel = 'low';
-          if (avgApplicants >= 50) baseLevel = 'high';
-          else if (avgApplicants >= 20) baseLevel = 'medium';
-          else if (avgApplicants > 0) baseLevel = 'low';
-          else baseLevel = 'unknown';
+      let level = 'unknown';
+      if      (avg>0 && avg<20)   level='low';
+      else if (avg>=20 && avg<50) level='medium';
+      else if (avg>=50)           level='high';
+      const variant = (i % 2 === 0) ? 'a' : 'b';
+      const cls = level==='unknown'
+                  ? 'marker-unknown'
+                  : `marker-${level}-${variant}`;
 
-          const variation = index % 2 === 0 ? 'a' : 'b';
-          const className = baseLevel === 'unknown' ? 'marker-unknown' : `marker-${baseLevel}-${variation}`;
-          index++;
+      const icon = L.divIcon({
+        html: `<div class="custom-marker ${cls}" title="${raw}: ${count} job${count!==1?'s':''}">${count}</div>`,
+        iconSize: [34,34],
+        iconAnchor: [17,34]
+      });
 
-          const icon = L.divIcon({
-            className: '',
-            html: `<div class="custom-marker ${className}" title="${rawName}: ${jobCount} job${jobCount !== 1 ? 's' : ''}">${jobCount}</div>`,
-            iconSize: [34, 34],
-            iconAnchor: [17, 34]
-          });
+      const marker = L.marker([lat,lng], { icon, jobCount: count });
 
-          const marker = L.marker([coords.lat, coords.lng], { icon });
-          const jobs = jobData[name] || [];
-          if (jobs.length > 0 && jobCount === 0) {
-            console.warn(`Location mismatch: jobs exist but summary missing for "${rawName}"`);
-          }
+      let popupHTML = `
+        <div class="popup-content">
+          <b>${raw}</b><br>
+          ${count} job${count!==1?'s':''}<br>
+          Avg applicants: ${Math.round(avg)}<br><hr>
+          <div style="max-height:300px; overflow-y:auto; padding-right:6px;">
+      `;
+      jobsHere.forEach(job => {
+        popupHTML += `
+          <div style="text-align:left; margin-bottom:10px;">
+            <strong style="font-size:25px;">${job.job_title||'Untitled Job'}</strong><br>
+            <div style="font-size:18px;">
+              <strong>Company:</strong> ${job.company_name||'N/A'}<br>
+              <strong>Time Posted:</strong> ${job.time_posted||'N/A'}<br>
+              <strong>Applicants:</strong> ${job.num_applicants||'N/A'}<br>
+              <strong>Employment Type:</strong> ${job['Employment Type']||'N/A'}<br>
+              <strong>Seniority Level:</strong> ${job['Seniority Level']||'N/A'}<br>
+              <strong>Job Function:</strong> ${job['Job Function']||'N/A'}<br>
+              <strong>Industries:</strong> ${job['Industries']||'N/A'}<br>
+              <strong>Skills Desired:</strong> ${job.skills_desired||'N/A'}<br>
+              <strong>Degree Qualifications:</strong> ${job.degree_qualifications||'N/A'}<br>
+              <strong>Job Summary:</strong> ${job.summary||'N/A'}<br>
+            </div>
+          </div><hr>
+        `;
+      });
+      popupHTML += `</div></div>`;
+      marker.bindPopup(popupHTML);
+      clusters.addLayer(marker);
+    });
 
-
-          let popupHTML = `
-              <div class="popup-content">
-                <b>${rawName}</b><br>
-                ${jobCount} job${jobCount !== 1 ? 's' : ''}<br>
-                Avg applicants: ${Math.round(avgApplicants)}<br><hr>
-                <div style="max-height: 300px; overflow-y: auto; padding-right: 6px;">
-            `;
-
-          jobs.forEach(job => {
-            popupHTML += `
-                <div style="text-align:left; margin-bottom: 10px;">
-                  <strong style="font-size:25px;">${job.job_title || 'Untitled Job'}</strong><br>
-                  <div style="font-size:18px;">
-                    <strong>Company:</strong> ${job.company_name || 'N/A'}<br>
-                    <strong>Time Posted:</strong> ${job.time_posted || 'N/A'}<br>
-                    <strong>Applicants:</strong> ${job.num_applicants || 'N/A'}<br>
-                    <strong>Employment Type:</strong> ${job['Employment Type'] || 'N/A'}<br>
-                    <strong>Seniority Level:</strong> ${job['Seniority Level'] || 'N/A'}<br>
-                    <strong>Job Function:</strong> ${job['Job Function'] || 'N/A'}<br>
-                    <strong>Industries:</strong> ${job['Industries'] || 'N/A'}<br>
-                    <strong>Skills Desired:</strong> ${job['skills_desired'] || 'N/A'}<br>
-                    <strong>Degree Qualifications:</strong> ${job['degree_qualifications'] || 'N/A'}<br>
-                    <strong>Job Summary:</strong> ${job['summary'] || 'N/A'}<br>
-                  </div>
-                </div><hr>
-              `;
-          });
-
-          popupHTML += '</div></div>';
-
-          marker.bindPopup(popupHTML);
-          marker.addTo(map);
-          markers.push(marker);
-          setTimeout(() => {
-            const markerElem = marker.getElement();
-            if (markerElem) {
-              markerElem.classList.add('visible');
-            }
-          }, 50);
-        });
-      })
-
-      .catch(error => console.error('Error loading map data:', error));
+    map.addLayer(clusters);
+    
+    // hide spinner once the map is fully shown
+    spinner.style.display = 'none';
+  })();
   </script>
 </body>
-
 </html>
