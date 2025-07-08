@@ -57,7 +57,7 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 **07/02**
 - Automated the RAG ingestion process for Elevenlab's conversational AI Agent via script
 
-**07/02**
+**07/04**
 - Added more UI features such as collapsable chatbox, separated conversational AI widget location, loading screen spinner, and the zoom-in/zoom-out aggregation of job markers on the map
 - Fine-tuned conversational AI's prompt, voice parameters, quality of output
 - Optimized the web-scraping script to avoid being rate-limited 
