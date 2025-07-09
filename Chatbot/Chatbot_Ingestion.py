@@ -1,10 +1,11 @@
 import os
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import warnings
 from dotenv import load_dotenv
 from pinecone import Pinecone, ServerlessSpec
 from langchain.docstore.document import Document
-from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 import json
@@ -17,6 +18,15 @@ INDEX_NAME = "csv-jobdata-index"
 PINECONE_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_ENV = os.getenv("PINECONE_ENV")
 EMBED_MODEL = "text-embedding-ada-002"
+
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/115.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json",
+}
 
 if not PINECONE_KEY or not PINECONE_ENV:
     print("Missing Pinecone credentials in .env")
@@ -52,19 +62,35 @@ else:
     print("Done.")
 
 
+
+session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"],
+)
+
+adapter = HTTPAdapter(max_retries=retries)
+session.mount("https://", adapter)
+session.mount("http://", adapter)
+
 def fetch_jobs_from_api(url: str) -> list[dict]:
-    resp = requests.get(url, timeout=30, headers={"Accept": "application/json"})
-    resp.raise_for_status()
+    try:
+        # (5s connect timeout, 60s read timeout)
+        resp = session.get(url, headers=HEADERS, timeout=(5, 60))
+        resp.raise_for_status()
+    except requests.exceptions.ReadTimeout:
+        print("Read timeout; consider increasing the read timeout or check API health.")
+        return []
+    except requests.exceptions.RequestException as e:
+        print("Failed to fetch jobs:", e)
+        return []
 
     print("HTTP status:", resp.status_code)
-    print("Raw body (first 500 chars):\n", resp.text[:500])
-
     data = resp.json()
-    print("Parsed JSON:", type(data), data if isinstance(data, (list, dict)) else repr(data))
-
     if isinstance(data, list):
         return data
-
     if isinstance(data, dict) and "jobs" in data:
         return data["jobs"]
 
