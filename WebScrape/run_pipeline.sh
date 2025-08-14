@@ -9,7 +9,6 @@ export $(grep -v '^#' /home/EthanCao/.env | xargs)
 
 source /home/EthanCao/.virtualenvs/chatbot/bin/activate
 
-
 echo "Running cleanup script..."
 python3 clear_jobs.py
 
@@ -28,5 +27,11 @@ python3 Job_info.py
 echo "Running job summarizer script..."
 python3 Job_Summarizer_Agent.py
 
+echo "Running historical data upload script"
+python3 upload_history.py
+
 echo "Running chatbot ingestion script.."
 python3 Chatbot_Ingestion.py
+
+echo "Running elevenlabs RAG ingestion script"
+python3 ElevenLabs_RAG_Indexing.py
