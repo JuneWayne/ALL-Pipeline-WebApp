@@ -62,4 +62,4 @@ for job in tqdm(jobs):
             }
         )
     except Exception as e:
-        print(f"⚠️ Failed on {job.get('job_title','<no title>')}: {e}")
+        print(f"Failed on {job.get('job_title','<no title>')}: {e}")
