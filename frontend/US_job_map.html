@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>UVA Job Map – Clustering & Spinning Collapsible Chat</title>
+  <title>Data Science Internship Map</title>
+  <link rel="icon" href="../static/sds_logo.png" sizes="192x192">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Leaflet CSS -->
@@ -16,7 +17,7 @@
       margin: 0; padding: 0;
       font-family: 'Segoe UI', sans-serif;
     }
-    
+
     #spinner {
         position: absolute;
         top: 50%; left: 50%;
@@ -33,7 +34,7 @@
     @keyframes spin{
         to {transform: rotate(360deg);}
     }
-    
+
     /* Map + Chat flex container */
     .map-chat-container {
       display: flex;
@@ -175,7 +176,7 @@
 <body>
   <!-- spinner -->
   <div id='spinner'></div>
-  
+
   <!-- Legend -->
   <div id="map-legend">
     <h4>Average Applicants</h4>
@@ -197,8 +198,8 @@
   </div>
 
   <!-- Floating Chat Toggle Button -->
-  <button 
-    id="toggle-chat" 
+  <button
+    id="toggle-chat"
     class="chat-button"
     title="Click to open chat"
    >💬</button>
@@ -232,8 +233,8 @@
   (async function() {
     const spinner = document.getElementById('spinner');
     spinner.style.display = 'block';
-    
-    
+
+
     function showError(msg) {
       const b = document.createElement('div');
       b.style = `
@@ -338,32 +339,53 @@
           Avg applicants: ${Math.round(avg)}<br><hr>
           <div style="max-height:300px; overflow-y:auto; padding-right:6px;">
       `;
-      jobsHere.forEach(job => {
-        popupHTML += `
-          <div style="text-align:left; margin-bottom:10px;">
-            <strong style="font-size:25px;">${job.job_title||'Untitled Job'}</strong><br>
-            <div style="font-size:18px;">
-              <strong>Company:</strong> ${job.company_name||'N/A'}<br>
-              <strong>Time Posted:</strong> ${job.time_posted||'N/A'}<br>
-              <strong>Applicants:</strong> ${job.num_applicants||'N/A'}<br>
-              <strong>Employment Type:</strong> ${job['Employment Type']||'N/A'}<br>
-              <strong>Seniority Level:</strong> ${job['Seniority Level']||'N/A'}<br>
-              <strong>Job Function:</strong> ${job['Job Function']||'N/A'}<br>
-              <strong>Industries:</strong> ${job['Industries']||'N/A'}<br>
-              <strong>Skills Desired:</strong> ${job.skills_desired||'N/A'}<br>
-              <strong>Degree Qualifications:</strong> ${job.degree_qualifications||'N/A'}<br>
-              <strong>Job Summary:</strong> ${job.summary||'N/A'}<br>
-            </div>
-          </div><hr>
-        `;
-      });
+
+    jobsHere.forEach(job => {
+      popupHTML += `
+        <div style="text-align:left; margin-bottom:10px;">
+          <strong style="font-size:25px;">
+            ${
+              job.job_link && job.job_link !== 'N/A'
+                ? `<a href="${
+                    /^https?:\/\//i.test(String(job.job_link).trim())
+                      ? String(job.job_link).trim()
+                      : `https://${String(job.job_link).trim()}`
+                  }" target="_blank" rel="noopener noreferrer">${job.job_title}</a>`
+                : job.job_title
+            }
+          </strong><br>
+          <div style="font-size:18px;">
+            <strong>Company:</strong> ${job.company_name || 'N/A'}<br>
+            <strong>Time Posted:</strong> ${job.time_posted || 'N/A'}<br>
+            <strong>Applicants:</strong> ${job.num_applicants || 'N/A'}<br>
+            <strong>Employment Type:</strong> ${job['Employment Type'] || 'N/A'}<br>
+            <strong>Seniority Level:</strong> ${job['Seniority Level'] || 'N/A'}<br>
+            <strong>Job Function:</strong> ${job['Job Function'] || 'N/A'}<br>
+            <strong>Industries:</strong> ${job['Industries'] || 'N/A'}<br>
+            <strong>Skills Desired:</strong> ${job.skills_desired || 'N/A'}<br>
+            <strong>Degree Qualifications:</strong> ${job.degree_qualifications || 'N/A'}<br>
+            <strong>Job Summary:</strong> ${job.summary || 'N/A'}<br>
+            <strong>Application Link:</strong> ${
+              job.application_link && job.application_link !== 'N/A'
+                ? `<a href="${
+                    /^https?:\/\//i.test(String(job.application_link).trim())
+                      ? String(job.application_link).trim()
+                      : `https://${String(job.application_link).trim()}`
+                  }" target="_blank" rel="noopener noreferrer">Apply</a>`
+                : 'N/A'
+            }<br>
+          </div>
+        </div><hr>
+      `;
+    });
+
       popupHTML += `</div></div>`;
       marker.bindPopup(popupHTML);
       clusters.addLayer(marker);
     });
 
     map.addLayer(clusters);
-    
+
     // hide spinner once the map is fully shown
     spinner.style.display = 'none';
   })();
