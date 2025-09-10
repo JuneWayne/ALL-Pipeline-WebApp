@@ -65,8 +65,11 @@ Here is a working live demo : https://dscareers-ethancao.pythonanywhere.com/US_m
 **08/16**
 - Initiated an additional collection in the job database to start collecting historical job information
 
-**09/17**
+**09/07**
 - Optimized scraper to scrape application links & recruiter profile information (with google PSE customized search engine API)
+  
+**09/10**
+- Fixed Recruiter Profile display with clickable profile links embedded 
 
 ## To Dos 🚨
 - Fix bugs of location markers showing 'zero' jobs ✅
